@@ -119,9 +119,9 @@ export default function LoginPage() {
           // console.log("User needs to complete profile. Redirecting...");
           // navigate('/complete-profile'); // Example: Redirect to profile completion
           // For now, let's just redirect to dashboard/home
-          navigate('/dashboard'); // Redirect to your dashboard or home page
+          navigate('/profile'); // Redirect to your dashboard or home page
         } else {
-          navigate('/dashboard'); // Redirect to your dashboard or home page
+          navigate('/profile'); // Redirect to your dashboard or home page
         }
 
       } else {

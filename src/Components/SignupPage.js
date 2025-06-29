@@ -58,7 +58,7 @@ export default function SignupPage() {
         localStorage.setItem('user', JSON.stringify(data.user));
         
         // Redirect to dashboard or profile completion
-        navigate('/dashboard');
+        navigate('/profile');
       } else {
         setError(data.msg || 'Signup failed. Please try again.');
         console.error('Signup failed:', data.msg);
