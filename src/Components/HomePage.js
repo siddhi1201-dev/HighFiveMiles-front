@@ -38,11 +38,14 @@ function Home() {
                 </div>
 
 
-          {/* Navigation Links, hidden on small screens, shown as flex on medium and larger */}
           <ul className="hidden md:flex space-x-8">
             {['About', 'Profile', 'Events', 'Blog', 'Contacts'].map((item) => (
               <li key={item}>
-                <a href={`#${item.toLowerCase()}`} className="text-gray-50 hover:text-indigo-300 transition duration-300 ease-in-out text-lg rounded-md px-3 py-2">
+                {/* Conditional href: /profile for Profile, #section for others */}
+                <a
+                  href={item === 'Profile' ? '/profile' : `#${item.toLowerCase()}`}
+                  className="text-gray-50 hover:text-pink-500 transition duration-300 ease-in-out text-lg rounded-md px-3 py-2" // Reverted to pink-500 for consistency
+                >
                   {item}
                 </a>
               </li>

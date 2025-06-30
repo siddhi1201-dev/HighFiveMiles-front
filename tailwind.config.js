@@ -35,4 +35,18 @@ module.exports = {
     },
   },
   plugins: [],
+
+   extend: {
+    animation: {
+      'pulse-glow': 'pulseGlow 3s infinite',
+      'ping-slow': 'ping 4s cubic-bezier(0, 0, 0.2, 1) infinite',
+    },
+    keyframes: {
+      pulseGlow: {
+        '0%, 100%': { boxShadow: '0 0 10px #22c55e, 0 0 20px #22c55e' },
+        '50%': { boxShadow: '0 0 20px #4ade80, 0 0 30px #4ade80' },
+      },
+    },
+  },
 }
+

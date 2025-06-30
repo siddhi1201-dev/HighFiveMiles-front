@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
-import L from 'leaflet';
+
 import axios from 'axios';
 import { FaRunning, FaHome, FaSignOutAlt, FaMapMarkerAlt, FaMedal, 
          FaChartLine, FaCalendarAlt, FaChartPie, FaRoute, 
@@ -11,12 +11,18 @@ import { FaRunning, FaHome, FaSignOutAlt, FaMapMarkerAlt, FaMedal,
          FaPlay, FaPause, FaStop, FaShare, FaHistory, FaBullseye,
          FaClock, FaRoute as FaRouteIcon, FaFireAlt, FaTrophy as FaTrophyIcon } from 'react-icons/fa';
 
-// Fix for default markers in react-leaflet
+
+         import L from 'leaflet';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
 delete L.Icon.Default.prototype._getIconUrl;
+
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
 });
 
 // Custom map component to handle location updates
@@ -374,9 +380,10 @@ const StartGoalPage = () => {
             <Link to="/profile" className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-5 py-2 rounded-full font-medium flex items-center transition-all duration-300 shadow-lg hover:shadow-xl">
               <FaHome className="mr-2" /> Profile
             </Link>
-            <button className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white px-5 py-2 rounded-full font-medium flex items-center transition-all duration-300 shadow-lg hover:shadow-xl">
+            
+            <Link to="/login" className="bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white px-5 py-2 rounded-full font-medium flex items-center transition-all duration-300 shadow-lg hover:shadow-xl">
               <FaSignOutAlt className="mr-2" /> Logout
-            </button>
+            </Link>
           </div>
         </header>
 
