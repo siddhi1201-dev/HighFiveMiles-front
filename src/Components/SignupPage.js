@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import leftimage from '../assests/HighFive Miles main page logo.png';
+import event1 from "../assests/events1.jpg";
+import event2 from "../assests/events2.jpg";
+import event3 from "../assests/events3.jpg";
+import event4 from "../assests/events4.jpg";
+
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -15,6 +20,24 @@ export default function SignupPage() {
 
   // Define your API base URL (should match login page)
   const API_BASE_URL = 'http://localhost:5000/api'; // **IMPORTANT: Adjust this to your actual backend URL**
+
+    // Array of background images for cycling (placeholders)
+    const backgroundImages = [event1, event2, event3, event4];
+  
+    // State to manage the current background image index
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+    // useEffect for cycling background images
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentImageIndex(
+          (prevIndex) => (prevIndex + 1) % backgroundImages.length
+        );
+      }, 5000); // Change image every 5 seconds (5000 milliseconds)
+  
+      return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, [backgroundImages.length]); // Re-run effect if backgroundImages array length changes
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,7 +95,18 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#7c73ef] flex items-center justify-center p-8 font-inter">
+     <div className="relative min-h-screen flex items-center justify-center">
+      
+      {/* 🔁 Background Image - blurred + behind */}
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out z-[-1]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(24,24,27,0.8), rgba(24,24,27,0.8)),url(${backgroundImages[currentImageIndex]})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          }}
+      />
+    <div className="min-h-screen  flex items-center justify-center p-8 font-inter">
       <div className="bg-white flex rounded-2xl shadow-lg overflow-hidden max-w-5xl w-full">
         {/* Left Side - Illustration */}
         <div className="w-1/2 bg-[#F3F0FF] flex items-center justify-center relative rounded-l-2xl">
@@ -157,6 +191,7 @@ export default function SignupPage() {
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }
