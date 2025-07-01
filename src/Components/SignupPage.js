@@ -81,7 +81,7 @@ export default function SignupPage() {
         localStorage.setItem('user', JSON.stringify(data.user));
         
         // Redirect to dashboard or profile completion
-        navigate('/profile');
+        navigate('/login');
       } else {
         setError(data.msg || 'Signup failed. Please try again.');
         console.error('Signup failed:', data.msg);
@@ -185,7 +185,7 @@ export default function SignupPage() {
 
           <p className="mt-6 text-sm text-gray-600 text-center">
             Already have an account?{" "}
-            <Link to="/" className="text-purple-600 font-semibold cursor-pointer hover:underline">
+            <Link to="/login" className="text-purple-600 font-semibold cursor-pointer hover:underline">
               Log In
             </Link>
           </p>

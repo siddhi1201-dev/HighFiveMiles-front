@@ -79,7 +79,7 @@ import event1 from "../assests/events1.jpg";
 import event2 from "../assests/events2.jpg";
 import event3 from "../assests/events3.jpg";
 import event4 from "../assests/events4.jpg";
-
+import logingirl from "../assests/logingirl.jpg";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -106,79 +106,66 @@ export default function LoginPage() {
 
     return () => clearInterval(interval); // Cleanup interval on component unmount
   }, [backgroundImages.length]); // Re-run effect if backgroundImages array length changes
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
-    setError(""); // Clear previous errors
-    setLoading(true); // Set loading to true
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    const data = await response.json(); // ✅ Only once
 
-      const data = await response.json(); // Parse the JSON response
+    if (response.ok) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      if (response.ok) {
-        // Check if the response status is 2xx (success)
-        console.log("Login successful:", data);
-        // Store the token (e.g., in localStorage)
-        localStorage.setItem("token", data.token);
-        // Optionally store user data
-        localStorage.setItem("user", JSON.stringify(data.user));
-
-        // Redirect based on hasProfileData (if you implement this logic in your app)
-        if (!data.hasProfileData) {
-          // console.log("User needs to complete profile. Redirecting...");
-          // navigate('/complete-profile'); // Example: Redirect to profile completion
-          // For now, let's just redirect to dashboard/home
-          navigate("/profile"); // Redirect to your dashboard or home page
-        } else {
-          navigate("/profile"); // Redirect to your dashboard or home page
-        }
+      if (!data.profile) {
+        navigate("/profile"); // First-time login
       } else {
-        // Handle backend errors (e.g., invalid credentials)
-        setError(data.msg || "Login failed. Please try again.");
-        console.error("Login failed:", data.msg);
+        navigate("/profile"); // Already has profile
       }
-    } catch (err) {
-      // Handle network errors or other unexpected issues
-      setError("Network error. Please try again later.");
-      console.error("Network error during login:", err);
-    } finally {
-      setLoading(false); // Set loading back to false
+    } else {
+      setError(data.msg || "Login failed. Please try again.");
+      console.error("Login failed:", data.msg);
     }
-  };
+  } catch (err) {
+    setError("Network error. Please try again later.");
+    console.error("Network error during login:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
-    
     <div className="relative min-h-screen flex items-center justify-center">
-      
       {/* 🔁 Background Image - blurred + behind */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out z-[-1]"
         style={{
-          backgroundImage: `linear-gradient(rgba(24,24,27,0.8), rgba(24,24,27,0.8)),url(${backgroundImages[currentImageIndex]})`,
+          backgroundImage: `linear-gradient(rgba(24,24,27,0.9), rgba(24,24,27,0.8)),url(${backgroundImages[currentImageIndex]})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          }}
+        }}
       />
 
       {/* 🔲 Overlay to darken if needed */}
-         
+
       <div className="min-h-screen flex items-center justify-center p-8 font-inter">
         {" "}
-        
         {/* Corrected typo: front-inter -> font-inter */}
         <div className="bg-white flex rounded-2xl shadow-lg overflow-hidden max-w-3xl w-full">
           {/* Left Side - Illustration */}
           <div className="w-1/2 bg-[#F3F0FF] flex items-center justify-center relative rounded-l-2xl">
             <img
-              src={leftimage}
+              src={logingirl}
               alt="Fitness illustration"
               className="h-full w-full object-contain rounded-l-2xl"
             />

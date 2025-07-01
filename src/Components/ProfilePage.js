@@ -32,296 +32,287 @@ import {
 // We will use Font Awesome icons directly in the JSX instead.
 
 // Mock profile data (this would come from your MongoDB backend)
-const initialProfileData = {
-  name: "Loading...",
-  location: "Loading...",
-  profilePicture: "https://placehold.co/150x150/cccccc/000000?text=Loading", // Default placeholder image
-  following: 0,
-  followers: 0,
+const staticProfileData = {
+  location: "Seattle, WA",
+  following: 128,
+  followers: 245,
   weeklyStats: {
-    distance: "0 km",
-    time: "0h 0m",
-    runs: 0,
-    calories: 0,
+    distance: "32.6 km",
+    time: "2h 45m",
+    runs: 5,
+    calories: 1850
   },
-  monthlyGoal: 0,
-  badges: [],
-  weeklyActivity: [],
-  events: [],
+  monthlyGoal: 75,
+  badges: [
+    { id: 1, iconClass: "fas fa-trophy", color: "text-amber-400", name: "Marathon" },
+    { id: 2, iconClass: "fas fa-fire", color: "text-orange-400", name: "10K Streak" },
+    { id: 3, iconClass: "fas fa-mountain", color: "text-teal-400", name: "Hill Master" },
+    { id: 4, iconClass: "fas fa-star", color: "text-yellow-400", name: "Speedster" },
+    { id: 5, iconClass: "fas fa-heart", color: "text-rose-400", name: "Consistency" },
+    { id: 6, iconClass: "fas fa-crown", color: "text-purple-400", name: "Leader" }
+  ],
+  weeklyActivity: [
+    { day: "Mon", value: 70 },
+    { day: "Tue", value: 40 },
+    { day: "Wed", value: 60 },
+    { day: "Thu", value: 90 },
+    { day: "Fri", value: 50 },
+    { day: "Sat", value: 80 },
+    { day: "Sun", value: 30 }
+  ],
+  events: [
+    { id: 1, day: 12, month: "JUL", name: "Summer Half Marathon", location: "Green Lake Park, Seattle", registered: true },
+    { id: 2, day: 25, month: "JUL", name: "Trail Running Challenge", location: "Mount Rainier National Park", registered: false },
+    { id: 3, day: 8, month: "AUG", name: "City 10K Run", location: "Downtown Seattle", registered: false }
+  ],
   yearlyStats: {
-    distance: "0 km",
-    runs: 0,
-    pace: "0:00 min/km",
-    calories: "0",
-    elevation: "0 m",
+    distance: "1,256 km",
+    runs: 102,
+    pace: "5:42 min/km",
+    calories: "68,450",
+    elevation: "12,450 m"
   },
-  routes: [],
-  challenges: [],
+  routes: [
+    { id: 1, iconClass: "fas fa-tree", color: "text-emerald-500", name: "Green Lake Loop", distance: "5.3 km", terrain: "Flat", difficulty: "Easy" },
+    { id: 2, iconClass: "fas fa-mountain", color: "text-amber-600", name: "Discovery Park Trail", distance: "8.2 km", terrain: "Hilly", difficulty: "Moderate" },
+    { id: 3, iconClass: "fas fa-road", color: "text-blue-500", name: "Waterfront Run", distance: "7.8 km", terrain: "Coastal", difficulty: "Easy" }
+  ],
+  challenges: [
+    { id: 1, name: "June 100K Challenge", progress: 65, total: 100, unit: "km", start: "Jun 1", end: "Jun 30", color: "bg-gradient-to-r from-purple-500 to-indigo-500" },
+    { id: 2, name: "Weekday Warrior", progress: 3, total: 5, unit: "runs", start: "Mon", end: "Sun", color: "bg-gradient-to-r from-fuchsia-500 to-pink-500" },
+    { id: 3, name: "Elevation Master", progress: 4.2, total: 5, unit: "km", start: "Jun 15", end: "Jul 15", color: "bg-gradient-to-r from-blue-500 to-teal-500" }
+  ]
 };
 
 const ProfilePage = () => {
-  // State to hold the current profile data, initialized with placeholder values
-  const [profileData, setProfileData] = useState(initialProfileData);
-  // State to manage the edit mode (true when editing, false when viewing)
-  const [isEditing, setIsEditing] = useState(false);
-  // State to temporarily hold the name while editing, separate from profileData
-  const [editedName, setEditedName] = useState(initialProfileData.name);
-  // State to temporarily hold the profile picture URL/DataURL for preview while editing
-  const [editedProfilePicture, setEditedProfilePicture] = useState(initialProfileData.profilePicture);
-  // State to hold the actual File object selected by the user, for sending to backend
-  const [selectedFile, setSelectedFile] = useState(null);
+  // State for dynamic profile data (name and picture, fetched from backend)
+  const [dynamicProfileData, setDynamicProfileData] = useState({
+    name: "Loading...",
+    profilePicture: "https://placehold.co/150x150/cccccc/000000?text=Loading"
+  });
 
-  // States for the social posts feature
+  // Combine dynamic and static data for rendering
+  const profileData = { ...staticProfileData, ...dynamicProfileData };
+
+  // States for editing
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(dynamicProfileData.name);
+  const [editedProfilePicture, setEditedProfilePicture] = useState(dynamicProfileData.profilePicture);
+  const [selectedFile, setSelectedFile] = useState(null); // To hold the actual file object for upload
+
+  // States for social posts (these remain client-side for now)
   const [posts, setPosts] = useState([
     {
       id: 1,
-      avatar: "AJ", // This will be dynamically replaced by profileData.profilePicture
+      avatar: "AJ",
       name: "Alex Johnson",
       time: "2 hours ago",
-      content:
-        "Just completed my longest run this year! 18.5km along the waterfront trail. Feeling amazing! #running #achievement",
+      content: "Just completed my longest run this year! 18.5km along the waterfront trail. Feeling amazing! #running #achievement",
       likes: 24,
       comments: 5,
       liked: false,
       commentsList: [
-        {
-          id: 1,
-          name: "Sarah T.",
-          content: "Great job Alex! That's an impressive distance!",
-        },
-        {
-          id: 2,
-          name: "Mike R.",
-          content: "The waterfront is my favorite route too!",
-        },
-      ],
+        { id: 1, name: "Sarah T.", content: "Great job Alex! That's an impressive distance!" },
+        { id: 2, name: "Mike R.", content: "The waterfront is my favorite route too!" }
+      ]
     },
     {
       id: 2,
       avatar: "AJ",
       name: "Alex Johnson",
       time: "Yesterday",
-      content:
-        "Beautiful morning run with the Seattle Runners group. The view of Mount Rainier was spectacular today!",
+      content: "Beautiful morning run with the Seattle Runners group. The view of Mount Rainier was spectacular today!",
       image: true,
       likes: 42,
       comments: 8,
       liked: true,
       commentsList: [
         { id: 1, name: "Jenny L.", content: "Wish I could have joined!" },
-        { id: 2, name: "David K.", content: "Perfect weather for a run!" },
-      ],
+        { id: 2, name: "David K.", content: "Perfect weather for a run!" }
+      ]
     },
     {
       id: 3,
       avatar: "AJ",
       name: "Alex Johnson",
       time: "2 days ago",
-      content:
-        "New personal best on the Green Lake Loop! Shaved off 45 seconds from my previous time. Consistency pays off!",
+      content: "New personal best on the Green Lake Loop! Shaved off 45 seconds from my previous time. Consistency pays off!",
       likes: 31,
       comments: 3,
       liked: false,
       commentsList: [
-        { id: 1, name: "Tom P.", content: "That's awesome progress!" },
-      ],
-    },
+        { id: 1, name: "Tom P.", content: "That's awesome progress!" }
+      ]
+    }
   ]);
 
-  const [newPost, setNewPost] = useState("");
+  const [newPost, setNewPost] = useState('');
   const [commentInput, setCommentInput] = useState({});
   const [showComments, setShowComments] = useState({});
 
-  // useEffect hook to fetch profile data when the component first loads
+  // useEffect to fetch dynamic profile data (name and picture) from backend
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // Retrieve the authentication token from local storage (or your state management)
-        // This token is sent to the backend to authenticate the user for private routes.
-        const token = localStorage.getItem('userToken'); // IMPORTANT: Ensure your login saves a token here
+        const token = localStorage.getItem('userToken');
         if (!token) {
-          console.warn("No authentication token found. Cannot fetch profile. Please log in.");
-          // In a real application, you would redirect the user to a login page here.
+          console.warn("No authentication token found. Cannot fetch profile.");
+          // You might redirect to login here
           return;
         }
 
-        // Make a GET request to your backend's profile endpoint
         const response = await fetch('/api/profile', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`, // Attach the JWT token
-            'Content-Type': 'application/json', // Indicate sending JSON (though not strictly necessary for GET)
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
         });
 
-        // Check if the response was successful (HTTP status 200-299)
         if (!response.ok) {
-          // Parse error message from backend if available
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to fetch profile data');
         }
 
-        // Parse the JSON response body
         const data = await response.json();
-        // Update the main profileData state with the fetched data
-        setProfileData(data);
-        // Initialize editable states with the fetched data
+        // Update only the dynamic parts of the profile data
+        setDynamicProfileData({
+          name: data.name,
+          profilePicture: data.profilePicture
+        });
+        // Initialize editable states with fetched data
         setEditedName(data.name);
         setEditedProfilePicture(data.profilePicture);
       } catch (error) {
         console.error("Error fetching profile data:", error.message);
-        // You can display a user-friendly error message on the UI here.
+        // Fallback to initial static data or show error message on UI
+        setDynamicProfileData({
+            name: "Error loading name",
+            profilePicture: "https://placehold.co/150x150/FF0000/FFFFFF?text=Error"
+        });
       }
     };
+    fetchProfile();
+  }, []); // Runs once on component mount
+const token = localStorage.getItem('token');
 
-    fetchProfile(); // Call the fetch function when the component mounts
-  }, []); // The empty dependency array ensures this effect runs only once on mount
+  // Handlers
+const handleSave = async () => {
+  try {
+    const res = await fetch('/api/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        
+        Authorization: `Bearer ${token}`, // If using JWT auth
+      },
+      body: JSON.stringify({
+        name: editedName,
+        profilePicture: editedProfilePicture,
+      }),
+    });
 
-  // Handler for when a new image file is selected for the profile picture
-  const handleImageChange = (e) => {
-    const file = e.target.files[0]; // Get the first selected file
-    if (file) {
-      setSelectedFile(file); // Store the actual File object in state for upload
-      const reader = new FileReader(); // FileReader to read file content
-      reader.onloadend = () => {
-        setEditedProfilePicture(reader.result); // Set the DataURL as preview
-      };
-      reader.readAsDataURL(file); // Read the file as a DataURL (base64 string)
+    const data = await res.json();
+
+    if (res.ok) {
+      setDynamicProfileData(data);         // Update UI with latest data
+      setIsEditing(false);          // Exit edit mode
+    } else {
+      console.error('Update failed:', data.message);
     }
-  };
+  } catch (err) {
+    console.error('Save error:', err.message);
+  }
+};
 
-  // Handler for saving the edited profile data
-  const handleSave = async () => {
-    // Retrieve authentication token
-    const token = localStorage.getItem('userToken');
-    if (!token) {
-      console.warn("No authentication token found. Cannot save profile. Please log in.");
-      return;
-    }
 
-    // Create a FormData object to send both text data and the file
-    const formData = new FormData();
-    formData.append('name', editedName); // Append the edited name
-
-    // Append the selected file ONLY if a new one was chosen
-    if (selectedFile) {
-      formData.append('profilePicture', selectedFile); // The key 'profilePicture' must match Multer config on backend
-    }
-
-    // You can append other editable fields if you implement them
-    // formData.append('location', profileData.location);
-    // formData.append('monthlyGoal', profileData.monthlyGoal);
-    // Note: For complex arrays like 'badges' or 'events', you would typically JSON.stringify them
-    // if sending via FormData, or have separate API endpoints for their updates.
-    // E.g., formData.append('badges', JSON.stringify(profileData.badges));
-
-    try {
-      // Make a PUT request to update the profile
-      const response = await fetch('/api/profile', { // Match your backend PUT profile route
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`, // Attach the JWT token
-          // IMPORTANT: Do NOT manually set 'Content-Type': 'multipart/form-data' here.
-          // The browser automatically sets it with the correct boundary when FormData is used.
-        },
-        body: formData, // Send the FormData object
-      });
-
-      // Check if the response was successful
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to save profile changes');
-      }
-
-      const data = await response.json(); // Get the updated profile data from the backend
-      setProfileData(data); // Update the main profileData state
-      setIsEditing(false); // Exit edit mode
-      setSelectedFile(null); // Clear the selected file after successful upload
-      console.log("Profile data saved successfully:", data);
-    } catch (error) {
-      console.error("Error saving profile data:", error.message);
-      // Display user-friendly error message on the UI.
-    }
-  };
-
-  // Handler for canceling profile edits
   const handleCancel = () => {
-    // Revert edited states to the current profileData values
-    setEditedName(profileData.name);
-    setEditedProfilePicture(profileData.profilePicture);
-    setSelectedFile(null); // Clear any temporarily selected file
-    setIsEditing(false); // Exit edit mode
+    // Revert edited states to the currently displayed dynamic profile data
+    setEditedName(dynamicProfileData.name);
+    setEditedProfilePicture(dynamicProfileData.profilePicture);
+    setSelectedFile(null); // Clear any selected file
+    setIsEditing(false);
   };
 
-  // --- Functions for social posts (these remain client-side for now) ---
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    setEditedProfilePicture(reader.result); // Base64 string
+  };
+  reader.readAsDataURL(file);
+};
+
+
+  // Social post handlers (unchanged, as requested)
   const handleAddPost = () => {
-    if (newPost.trim() === "") return;
+    if (newPost.trim() === '') return;
 
     const newPostObj = {
       id: posts.length + 1,
-      // Use the actual profile picture from profileData, or initials if not available
       avatar: profileData.profilePicture || (profileData.name ? profileData.name.charAt(0).toUpperCase() : 'U'),
-      name: profileData.name, // Use the current profile name for the post
+      name: profileData.name,
       time: "Just now",
       content: newPost,
       likes: 0,
       comments: 0,
       liked: false,
-      commentsList: [],
+      commentsList: []
     };
 
     setPosts([newPostObj, ...posts]);
-    setNewPost("");
+    setNewPost('');
   };
 
   const handleDeletePost = (postId) => {
-    setPosts(posts.filter((post) => post.id !== postId));
+    setPosts(posts.filter(post => post.id !== postId));
   };
 
   const handleLikePost = (postId) => {
-    setPosts(
-      posts.map((post) => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            likes: post.liked ? post.likes - 1 : post.likes + 1,
-            liked: !post.liked,
-          };
-        }
-        return post;
-      })
-    );
+    setPosts(posts.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          likes: post.liked ? post.likes - 1 : post.likes + 1,
+          liked: !post.liked
+        };
+      }
+      return post;
+    }));
   };
 
   const handleAddComment = (postId) => {
-    if (!commentInput[postId] || commentInput[postId].trim() === "") return;
+    if (!commentInput[postId] || commentInput[postId].trim() === '') return;
 
-    setPosts(
-      posts.map((post) => {
-        if (post.id === postId) {
-          const newComment = {
-            id: post.commentsList.length + 1,
-            name: profileData.name, // Use the current profile name for the comment
-            content: commentInput[postId],
-          };
-          return {
-            ...post,
-            comments: post.comments + 1,
-            commentsList: [...post.commentsList, newComment],
-          };
-        }
-        return post;
-      })
-    );
-    setCommentInput({ ...commentInput, [postId]: "" });
+    setPosts(posts.map(post => {
+      if (post.id === postId) {
+        const newComment = {
+          id: post.commentsList.length + 1,
+          name: profileData.name,
+          content: commentInput[postId]
+        };
+        return {
+          ...post,
+          comments: post.comments + 1,
+          commentsList: [...post.commentsList, newComment]
+        };
+      }
+      return post;
+    }));
+
+    setCommentInput({...commentInput, [postId]: ''});
   };
 
   const toggleComments = (postId) => {
     setShowComments({
       ...showComments,
-      [postId]: !showComments[postId],
+      [postId]: !showComments[postId]
     });
   };
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 text-indigo-900 p-4 md:p-8 relative overflow-hidden">
@@ -364,85 +355,89 @@ const ProfilePage = () => {
           <div className="absolute top-0 right-0 w-32 h-32 bg-purple-200/30 rounded-full -translate-y-1/2 translate-x-1/2"></div>
 
           {/* Edit Button */}
-          <div className="absolute top-6 right-6 z-20">
-            {isEditing ? (
-              <div className="flex space-x-2">
-                <button
-                  onClick={handleSave}
-                  className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors shadow-md"
-                  title="Save Changes"
-                >
-                  <i className="fas fa-save"></i> {/* Font Awesome Save icon */}
-                </button>
-                <button
-                  onClick={handleCancel}
-                  className="p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors shadow-md"
-                  title="Cancel Editing"
-                >
-                  <i className="fas fa-times"></i> {/* Font Awesome Times icon */}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="p-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition-colors shadow-md"
-                title="Edit Profile"
-              >
-                <i className="fas fa-edit"></i> {/* Font Awesome Edit icon */}
-              </button>
-            )}
-          </div>
-
-          {/* Profile Header */}
-          <div className="text-center relative z-10">
-            <div className="relative mx-auto w-36 h-36 group">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full animate-pulse"></div>
-              <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center overflow-hidden">
+              <div className="absolute top-6 right-6 z-20">
                 {isEditing ? (
-                  <>
-                    <img
-                      src={editedProfilePicture}
-                      alt="Profile Preview"
-                      className="w-full h-full object-cover"
-                    />
-                    <input
-                      type="file"
-                      id="profilePictureUpload"
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                      onChange={handleImageChange}
-                      accept="image/*"
-                    />
-                    <label
-                      htmlFor="profilePictureUpload"
-                      className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-sm text-center"
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleSave}
+                      className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors shadow-md"
+                      title="Save Changes"
                     >
-                      Change Photo
-                    </label>
-                  </>
+                      <i className="fas fa-save"></i> {/* Font Awesome Save icon */}
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors shadow-md"
+                      title="Cancel Editing"
+                    >
+                      <i className="fas fa-times"></i> {/* Font Awesome Times icon */}
+                    </button>
+                  </div>
                 ) : (
-                  <img
-                    src={profileData.profilePicture}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="p-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition-colors shadow-md"
+                    title="Edit Profile"
+                  >
+                    <i className="fas fa-edit"></i> {/* Font Awesome Edit icon */}
+                  </button>
                 )}
               </div>
-            </div>
-            {isEditing ? (
-              <input
-                type="text"
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                className="text-2xl font-bold mt-4 text-center bg-transparent border-b-2 border-indigo-400 focus:outline-none focus:border-purple-600 text-gray-900"
-              />
-            ) : (
-              <h2 className="text-2xl font-bold mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                {profileData.name}
-              </h2>
-            )}
-           
 
-          </div>
+              {/* Profile Header */}
+              <div className="text-center relative z-10">
+                <div className="relative mx-auto w-36 h-36 group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full animate-pulse"></div>
+                  <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center overflow-hidden">
+                    {isEditing ? (
+                      <>
+                        <img
+                          src={editedProfilePicture}
+                          alt="Profile Preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <input
+                          type="file"
+                          id="profilePictureUpload"
+                          name="profilePicture" // Important for Multer
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          onChange={handleImageChange}
+                          accept="image/*"
+                        />
+                        <label
+                          htmlFor="profilePictureUpload"
+                          className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-sm text-center"
+                        >
+                          Change Photo
+                        </label>
+                      </>
+                    ) : (
+                      <img
+                        src={profileData.profilePicture}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/150x150/cccccc/000000?text=Profile"}} // Fallback for broken images
+                      />
+                    )}
+                  </div>
+                </div>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    className="text-2xl font-bold mt-4 text-center bg-transparent border-b-2 border-indigo-400 focus:outline-none focus:border-purple-600 text-gray-900"
+                  />
+                ) : (
+                  <h2 className="text-2xl font-bold mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    {profileData.name}
+                  </h2>
+                )}
+                <p className="text-purple-600 flex items-center justify-center mt-1">
+                  {/* Using Font Awesome icon directly */}
+                  <i className="fas fa-map-marker-alt mr-1"></i> {profileData.location}
+                </p>
+              </div>
 
              {/* Social Stats */}
           <div className="flex justify-around my-6 py-4 border-y border-purple-100 relative z-10">
